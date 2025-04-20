@@ -1,8 +1,6 @@
 package main
 
 import (
-	"math"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -73,52 +71,96 @@ func initState() Board {
 	return b
 }
 
-func render(board *Board) {
-	// rendering
-	rect_w := int32(math.Round(float64(SCREEN_SQUARE/BOARD_DIM) * 0.9))
-	rect_h := int32(math.Round(float64(SCREEN_SQUARE/BOARD_DIM) * 0.9))
-	left_padding := (SCREEN_WIDTH - SCREEN_SQUARE) / 2
-	top_padding := (SCREEN_HEIGHT - SCREEN_SQUARE) / 2
-
+func render(board *Board, paused bool) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.Black)
 	for i := int32(0); i < BOARD_DIM; i++ {
 		for j := int32(0); j < BOARD_DIM; j++ {
-			x := j*(SCREEN_SQUARE/BOARD_DIM) + int32(left_padding)
-			y := i*(SCREEN_SQUARE/BOARD_DIM) + int32(top_padding)
+			x := j*(SCREEN_SQUARE/BOARD_DIM) + int32(SCREEN_SQUARE_LEFT_PADDING)
+			y := i*(SCREEN_SQUARE/BOARD_DIM) + int32(SCREEN_SQUARE_TOP_PADDING)
 
 			index := i*BOARD_DIM + j
 			cell := board[index]
 			if cell {
-				rl.DrawRectangle(x, y, rect_w, rect_h, rl.RayWhite)
+				rl.DrawRectangle(x, y, RECT_W, RECT_H, rl.RayWhite)
 			} else {
-				rl.DrawRectangle(x, y, rect_w, rect_h, rl.Gray)
+				rl.DrawRectangle(x, y, RECT_W, RECT_H, rl.Gray)
 			}
 		}
 	}
-	rl.DrawFPS(SCREEN_WIDTH-100, 50)
+	rl.DrawFPS(SCREEN_W-90, 50)
+	if paused {
+		rl.DrawText("PAUSED", SCREEN_W-90, 100, 20, rl.Purple)
+	}
 	rl.EndDrawing()
+}
+
+func process_input(board *Board) {
+	pressed_left := rl.IsMouseButtonPressed(rl.MouseButtonLeft)
+	pressed_right := rl.IsMouseButtonPressed(rl.MouseButtonRight)
+	if pressed_left || pressed_right {
+		start_x := SCREEN_SQUARE_LEFT_PADDING
+		start_y := SCREEN_SQUARE_TOP_PADDING
+
+		pos := rl.GetMousePosition()
+		is_in_grid_area_x := start_x <= int(pos.X) && int(pos.X) <= start_x+SCREEN_SQUARE
+		is_in_grid_area_y := start_y <= int(pos.Y) && int(pos.Y) <= start_y+SCREEN_SQUARE
+		is_in_grid_area := is_in_grid_area_x && is_in_grid_area_y
+
+		// fmt.Println(pos)
+
+		if is_in_grid_area {
+			// todo: improve pointer precision
+			// todo: color lightly on hover
+			nearest_j := int((pos.X-float32(start_x))/float32(RECT_W)) - 1
+			nearest_i := int((pos.Y-float32(start_y))/float32(RECT_H)) - 1
+
+			// fmt.Println(nearest_i, nearest_j)
+
+			index := nearest_i*BOARD_DIM + nearest_j
+			if pressed_left {
+				board[index] = true
+			} else { // pressed_right
+				board[index] = false
+			}
+		}
+	}
 }
 
 func main() {
 	// raylib init window
-	rl.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Game of Life")
+	rl.InitWindow(SCREEN_W, SCREEN_H, "Game of Life")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(0)
 
 	// initial state
 	board := initState()
 	reload := TIMESTEP_IN_SECS
+	paused := false
 
 	for !rl.WindowShouldClose() {
-		// simulate
-		reload -= rl.GetFrameTime()
-		if reload <= 0 {
-			reload = TIMESTEP_IN_SECS + reload
-			board = new_generation(board)
+		if !paused {
+			if rl.IsKeyDown(rl.KeySpace) {
+				paused = true
+				continue
+			}
+
+			// simulate
+			reload -= rl.GetFrameTime()
+			if reload <= 0 {
+				reload = TIMESTEP_IN_SECS + reload
+				board = new_generation(board)
+			}
+		} else {
+			if rl.IsKeyReleased(rl.KeySpace) {
+				paused = false
+				continue
+			}
+
+			process_input(&board)
 		}
 
 		// render
-		render(&board)
+		render(&board, paused)
 	}
 }

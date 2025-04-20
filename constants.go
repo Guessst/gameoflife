@@ -1,8 +1,17 @@
 package main
 
-const SCREEN_HEIGHT = 450
-const SCREEN_WIDTH = 800
-const SCREEN_SQUARE = min(SCREEN_HEIGHT, SCREEN_WIDTH)
+import "math"
+
+const SCREEN_H = 600
+const SCREEN_W = 800
+const SCREEN_SQUARE = min(SCREEN_H, SCREEN_W)
+
+const SCREEN_SQUARE_LEFT_PADDING = (SCREEN_W-SCREEN_SQUARE)/2 + 5 // todo: fazer esse + 5 ser metade de um retangulo, ou algo assim
+const SCREEN_SQUARE_TOP_PADDING = (SCREEN_H-SCREEN_SQUARE)/2 + 5
+
+var RECT_W = int32(math.Round(float64(SCREEN_SQUARE/BOARD_DIM) * 0.9))
+var RECT_H = int32(math.Round(float64(SCREEN_SQUARE/BOARD_DIM) * 0.9))
+
 const BOARD_DIM = 40
 const TIMESTEP_IN_SECS float32 = 0.5
 
