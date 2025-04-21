@@ -16,11 +16,11 @@ func is_in_bounds(i int, j int) bool {
 	return 0 <= i && i < BOARD_DIM && 0 <= j && j < BOARD_DIM
 }
 
-func count_neighbours(i int, j int, b *Board) int {
+func count_neighbours(i int, j int, b *Board2D) int {
 	count := 0
-	for dir := UP; dir < NULLDIRECTION; dir++ {
-		dir_i := DIRECTIONS[dir].dir_i
-		dir_j := DIRECTIONS[dir].dir_j
+	for dir := UP_2D; dir < NULLDIRECTION_2D; dir++ {
+		dir_i := DIRECTIONS_2D[dir].i
+		dir_j := DIRECTIONS_2D[dir].j
 
 		cell_i := i + dir_i
 		cell_j := j + dir_j
@@ -32,8 +32,8 @@ func count_neighbours(i int, j int, b *Board) int {
 	return count
 }
 
-func new_generation(b Board) Board {
-	new_b := Board{}
+func new_generation(b Board2D) Board2D {
+	new_b := Board2D{}
 
 	for i := 0; i < BOARD_DIM; i++ {
 		for j := 0; j < BOARD_DIM; j++ {
@@ -64,7 +64,7 @@ func new_generation(b Board) Board {
 	return new_b
 }
 
-func render(board *Board, paused bool, hovering Index) {
+func render(board *Board2D, paused bool, hovering Index2D) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.Black)
 	for i := int32(0); i < BOARD_DIM; i++ {
@@ -99,7 +99,7 @@ func render(board *Board, paused bool, hovering Index) {
 	rl.EndDrawing()
 }
 
-func process_input(board *Board, hovering *Index, paused bool) {
+func process_input(board *Board2D, hovering *Index2D, paused bool) {
 	pos := rl.GetMousePosition()
 	start_x := SCREEN_SQUARE_LEFT_PADDING
 	start_y := SCREEN_SQUARE_TOP_PADDING
@@ -134,16 +134,21 @@ func process_input(board *Board, hovering *Index, paused bool) {
 }
 
 func main() {
+	if MODE == "3D" {
+		main_3d()
+		return
+	}
+
 	// raylib init window
 	rl.InitWindow(SCREEN_W, SCREEN_H, "Game of Life")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(0)
 
 	// initial state
-	board := Board{}
+	board := Board2D{}
 	reload := TIMESTEP_IN_SECS
 	paused := false
-	hovering := Index{-1, -1}
+	hovering := Index2D{-1, -1}
 
 	for !rl.WindowShouldClose() {
 		if !paused {
