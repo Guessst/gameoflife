@@ -6,7 +6,6 @@ import (
 
 /*
 TODO
-- Pausar direito
 - Permitir voltar ou avançar passo enquanto pausado
 - Carregar estado inicial baseado em arquivo
 - GUI (Reload, Dimensões)
@@ -100,7 +99,7 @@ func render(board *Board, paused bool, hovering Index) {
 	rl.EndDrawing()
 }
 
-func process_input(board *Board, hovering *Index) {
+func process_input(board *Board, hovering *Index, paused bool) {
 	pos := rl.GetMousePosition()
 	start_x := SCREEN_SQUARE_LEFT_PADDING
 	start_y := SCREEN_SQUARE_TOP_PADDING
@@ -122,11 +121,13 @@ func process_input(board *Board, hovering *Index) {
 			} else { // pressed_right
 				board[index] = false
 			}
-		} else { // hack
-			hovering.i = nearest_i
-			hovering.j = nearest_j
 		}
-	} else {
+
+		hovering.i = nearest_i
+		hovering.j = nearest_j
+	}
+
+	if !is_in_grid_area || !paused {
 		hovering.i = -1
 		hovering.j = -1
 	}
@@ -146,9 +147,9 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		if !paused {
-			if rl.IsKeyDown(rl.KeySpace) {
-				paused = true
-				continue
+			// handle pause
+			if rl.IsKeyPressed(rl.KeySpace) {
+				paused = !paused
 			}
 
 			// simulate
@@ -158,14 +159,14 @@ func main() {
 				board = new_generation(board)
 			}
 		} else {
-			if rl.IsKeyReleased(rl.KeySpace) {
-				paused = false
+			// handle pause
+			if rl.IsKeyPressed(rl.KeySpace) {
+				paused = !paused
 				hovering.i = -1
 				hovering.j = -1
-				continue
 			}
 
-			process_input(&board, &hovering)
+			process_input(&board, &hovering, paused)
 		}
 
 		// render
