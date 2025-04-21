@@ -1,21 +1,27 @@
 package main
 
-import "math"
-
 const SCREEN_H = 600
 const SCREEN_W = 800
-const SCREEN_SQUARE = min(SCREEN_H, SCREEN_W)
+const SCREEN_SQUARE = min(SCREEN_H, SCREEN_W) // todo: pensar num nome melhor pra isso
 
-const SCREEN_SQUARE_LEFT_PADDING = (SCREEN_W-SCREEN_SQUARE)/2 + 5 // todo: fazer esse + 5 ser metade de um retangulo, ou algo assim
-const SCREEN_SQUARE_TOP_PADDING = (SCREEN_H-SCREEN_SQUARE)/2 + 5
+const RECT_SCALE = 0.9
+const SCREEN_SQUARE_LEFT_PADDING = (SCREEN_W - SCREEN_SQUARE) / 2 // todo: fazer esse + 5 ser metade de um retangulo, ou algo assim
+const SCREEN_SQUARE_TOP_PADDING = (SCREEN_H - SCREEN_SQUARE) / 2
 
-var RECT_W = int32(math.Round(float64(SCREEN_SQUARE/BOARD_DIM) * 0.9))
-var RECT_H = int32(math.Round(float64(SCREEN_SQUARE/BOARD_DIM) * 0.9))
+var FULL_RECT_W = float64(SCREEN_SQUARE / BOARD_DIM)
+var FULL_RECT_H = float64(SCREEN_SQUARE / BOARD_DIM)
+
+var RECT_W = int32(FULL_RECT_W * RECT_SCALE)
+var RECT_H = int32(FULL_RECT_H * RECT_SCALE)
 
 const BOARD_DIM = 40
 const TIMESTEP_IN_SECS float32 = 0.5
 
 type Board [BOARD_DIM * BOARD_DIM]bool
+type Index struct {
+	i int
+	j int
+}
 
 // Direction is a custom type for direction indices
 type Direction int
