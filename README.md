@@ -5,6 +5,6 @@ go run .
 
 # for 3d
 
-go run .
+go run . 3d
 ```
 ![Showcase](2_rings_explosion.png)
