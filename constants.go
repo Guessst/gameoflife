@@ -1,6 +1,6 @@
 package main
 
-const MODE = "3D"
+var MODE = "2D"
 
 const SCREEN_H = 600
 const SCREEN_W = 800

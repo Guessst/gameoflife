@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"strings"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -65,6 +68,9 @@ func new_generation(b Board2D) Board2D {
 }
 
 func render(board *Board2D, paused bool, hovering Index2D) {
+	var default_font_size int32 = 20
+	var small_font_size int32 = 14
+
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.Black)
 	for i := int32(0); i < BOARD_DIM; i++ {
@@ -81,10 +87,14 @@ func render(board *Board2D, paused bool, hovering Index2D) {
 			}
 		}
 	}
-	rl.DrawFPS(SCREEN_W-90, 50)
+	rl.DrawFPS(SCREEN_W-100, 50)
 	if paused {
-		rl.DrawText("PAUSED", SCREEN_W-90, 100, 20, rl.Purple)
+		rl.DrawText("PAUSED", SCREEN_W-100, 100, default_font_size, rl.Purple)
+	} else {
+		rl.DrawText("PRESS SPACE", SCREEN_W-100, 100, small_font_size, rl.Purple)
+		rl.DrawText("TO PAUSE", SCREEN_W-100, 100+small_font_size, small_font_size, rl.Purple)
 	}
+
 	if hovering.i > -1 {
 		i := int32(hovering.i)
 		j := int32(hovering.j)
@@ -134,7 +144,15 @@ func process_input(board *Board2D, hovering *Index2D, paused bool) {
 }
 
 func main() {
-	if MODE == "3D" {
+	if len(os.Args) > 1 {
+		if strings.ToLower(os.Args[1]) == "3d" {
+			MODE = "3d"
+		} else {
+			MODE = "2d"
+		}
+	}
+
+	if MODE == "3d" {
 		main_3d()
 		return
 	}
